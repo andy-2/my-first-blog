@@ -1,3 +1,10 @@
+коммандная строка (ConEmu)
+	# cd d:\andy_projects\py_djangogirls\Scripts\
+    # activate              
+	# cd d:\andy_projects\py_djangogirls\
+	# python manage.py runserver
+=======================================================
+
 	# python -m venv py_djangogirls
 	# cd py_djangogirls\Scripts
 	# activate
@@ -88,15 +95,194 @@ mysite/settings.py
 	И сохрани его как .gitignore в корневом каталоге "djangogirls".
 
 
+	Используй команду git status перед git add или в любой другой момент, когда ты не уверена, что изменения — хорошая идея. Это убережёт тебя от таких неприятных сюрпризов, как добавление неправильных файлов. Команда git status возвращает информацию обо всех ранее неотслеживаемых/изменённых/добавленных в git файлах, а также статус ветки и многое другое. Результат должен быть похож на:
+
+		$ git status
+		On branch master
+
+		Initial commit
+
+		Untracked files:
+		  (use "git add <file>..." to include in what will be committed)
+
+		        .gitignore
+		        blog/
+		        manage.py
+		        mysite/
+
+		nothing added to commit but untracked files present (use "git add" to track)
+	И, наконец, мы сохраним наши изменения. Переключись на консоль и набери:
+		$ git add --all .
+		$ git commit -m "My Django Girls app, first commit"
+
+*** Загружаем код в репозиторий GitHub
+	Зайди на GitHub.com и создай новую бесплатную учётную запись.
+	Затем создай новый репозиторий и назови его "my-first-blog". Не выбирай опцию "initialise with a README", не создавай файл .gitignore (мы сделаем это локально сами) и оставь лицензию None.
+-------------------------------------------
+github.com
+
+@andy-2
+temp2box@gmail.com
+UDFHlbz-002
+https://github.com/andy-2/my-first-blog.git
+-------------------------------------------
+	На следующем экране ты найдёшь URL для клонирования репозитория. Выбери вариант "HTTPS" и скопируй ссылку:
+		https://github.com/andy-2/my-first-blog.git
+
+	Теперь нужно связать локальный репозиторий с репозиторием на GitHub.
+		$ git remote add origin https://github.com/andy-2/my-first-blog.git
+		$ git push -u origin master
+		Введи свое имя пользователя и пароль от аккаунта GitHub; ты должна увидеть что-то такое:
+
+		command-line
+		Username for 'https://github.com': hjwp
+		Password for 'https://hjwp@github.com':
+		Counting objects: 6, done.
+		Writing objects: 100% (6/6), 200 bytes | 0 bytes/s, done.
+		Total 3 (delta 0), reused 0 (delta 0)
+		To https://github.com/hjwp/my-first-blog.git
+		 * [new branch]      master -> master
+		Branch master set up to track remote branch master from origin.
+----------------------------------
+https://github.com/andy-2/my-first-blog
+----------------------------------
+*** Настройка блога на PythonAnywhere
+*** Регистрация на PythonAnywhere
+	PythonAnywhere — это сервис по запуску кода на Python в облаке. Мы будем использовать его, чтобы разместить наш сайт «вживую» в интернете.
+----------------------------------
+andy2
+temp2box@gmail.com
+UDFHlbz-002
+https://www.pythonanywhere.com/user/andy2/
+----------------------------------
+
+*** Создание API токена для PythonAnywhere
+	Это нужно будет сделать только один раз. Когда ты зарегистрируешься на PythonAnywhere, откроется панель управления (dashboard). На ней в правом верхнем углу будет ссылка на страницу «Account»:
+	Там выбери вкладку «API token» и нажми кнопку, на которой написано «Create new API token» (создать новый API token).
+----------------------------------
+	Your API token
+		0242a9dddd0ec14208979a21cf277b7ef97c5ee6
+	Warning: our API is new and in beta and not officially supported, and may change at any time, and it is not to be relied upon, and may cause unpredictable growth of extra ears. Extra ears not guaranteed.
+
+	Use this token for our API by setting a request header called Authorization, followed by Token <token>, eg:
+		import requests
+		my_domain = 'andy2.pythonanywhere.com'
+		username = 'andy2'
+		token = '0242a9dddd0ec14208979a21cf277b7ef97c5ee6'
+
+		response = requests.post(
+		  'https://www.pythonanywhere.com/api/v0/user/{username}/webapps/{domain}/reload/'.format(
+		      username=username, domain=my_domain
+		  ),
+		  headers={'Authorization': 'Token {token}'.format(token=token)}
+		)
+		if response.status_code == 200:
+		  print('All OK')
+		else:
+		  print('Got unexpected status code {}: {!r}'.format(response.status_code, response.content))
+	TIP: Your API token is also available from pythonanywhere consoles, tasks and webapps, as an Environment Variable, $API_TOKEN
+----------------------------------
+*** Настройка сайта на PythonAnywhere
+	Вернись на главную страницу PythonAnywhere, кликнув логотип. Затем запусти Bash-консоль.
+	есть программа-помощник, которая сделает это для тебя. Давай её установим.
+		PythonAnywhere command-line
+		$ pip3.6 install --user pythonanywhere
+	Теперь запустим эту вспомогательную утилиту, которую ты только что установила. Она настроит твоё приложение, скачав его код с GitHub. 
+		$ pa_autoconfigure_django.py https://github.com/andy-2/my-first-blog.git
+	Утилита будет печатать в консоль, что она делает:
+	*) Скачивает твой код с GitHub
+	*) Создаёт виртуальное окружение на PythonAnywhere, такое же, как на твоём компьютере
+	*) Обновляет твой файл настроек с настройками деплоя
+	*) Создаёт базу данных на PythonAnywhere, используя команду manage.py migrate
+	*) Разбирается с твоими статическими файлами (о них будет дальше)
+	*) Настраивает PythonAnywhere так, чтобы твоё приложение было доступно в интернете
+	Все эти шаги автоматизированы на PythonAnywhere, но они совершенно такие же, какие надо было бы совершить с любым другим хостинговым сервисом.
+
+	Главное, на что нужно обратить внимание сейчас, — это то, что твоя база данных на PythonAnywhere никак не связана с базой данных на твоём компьютере. Поэтому там будут разные посты и разные аккаунты администраторов. Как следствие, для базы на PythonAnywhere необходимо создать аккаунт администратора так же, как ты это делала у себя локально с помощью команды createsuperuser. На PythonAnywhere заранее активировано виртуальное окружение, так что всё, что тебе нужно сделать — это запустить в консоли PythonAnhywhere команду:
+		(andy2.pythonanywhere.com) $ python manage.py createsuperuser
+-----------------------------------------------
+Имя пользователя: andy2
+Адрес электронной почты: temp2box@gmail.com
+Password: UDFHlbz-002
+Superuser created successfully.
+-----------------------------------------------
+*** Твой первый URL-адрес в Django!
+	Мы хотим, чтобы 'http://127.0.0.1:8000/' возвращал домашнюю страничку нашего блога со списком записей в нём.
+	mysite/urls.py
+		from django.contrib import admin
+		from django.urls import path, include
+
+		urlpatterns = [
+		    path('admin/', admin.site.urls),
+		    path('', include('blog.urls')),
+		]
+
+*** blog.urls
+	Создай новый пустой файл blog/urls.py:
+		from django.urls import path
+		from . import views
+
+		urlpatterns = [
+		    path('', views.post_list, name='post_list'),
+		]
+	Как ты можешь заметить, мы связали view под именем post_list с корневым URL-адресом (''). Этот шаблон URL будет соответствовать пустой строке. Это правильно, потому что для обработчиков URL в Django 'http://127.0.0.1:8000/' не является частью URL. Этот шаблон скажет Django, что views.post_list — это правильное направление для запроса к твоему веб-сайту по адресу 'http://127.0.0.1:8000/'.
+
+	Последняя часть name='post_list' — это имя URL, которое будет использовано, чтобы идентифицировать его. Оно может быть таким же, как имя представления (англ. view), а может и чем-то совершенно другим. Мы будем использовать именованные URL позднее в проекте, поэтому важно указывать их имена уже сейчас. Мы также должны попытаться сохранить имена URL-адресов уникальными и легко запоминающимися.
+
+	Если сейчас ты попытаешься открыть страницу http://127.0.0.1:8000/ в браузере, то увидишь сообщение о том, что веб-страница недоступна. Это произошло потому, что сервер (помнишь, как мы набирали runserver?) перестал обрабатывать запросы. Чтобы понять почему, открой окно своей командной строки.
+
+*** blog/views.py
+		from django.shortcuts import render
+
+		def post_list(request):
+		    return render(request, 'blog/post_list.html', {})
+
+*** Твой первый шаблон!
+	blog
+	└───templates
+	    └───blog
+	Теперь создай файл post_list.html
+		<html>
+		    <p>Hi there!</p>
+		    <p>It works!</p>
+		</html>
+*** публикация! Commit и push кода в репозиторий GitHub
+	какие файлы были изменены с момента последнего развёртывания 
+	Убедись, что находишься в директории djangogirls
+		$ git status
+		$ git add --all .
+	Примечание: -all («всё») означает, что git также обратит внимание на удалённые файлы (по умолчанию он отслеживает новые/изменённые файлы).
+	Прежде чем мы загрузим файлы, давай проверим, что именно git будет загружать (все файлы, который git готов отправить на сервер, отмечаются шрифтом зелёного цвета):
+
+command-line
+$ git status
+Мы почти у цели, пришло время сохранить изменения в истории. К сохраняемой версии мы добавим небольшое сообщение, в котором кратко опишем изменения. Можешь набрать в качестве сообщения всё, что захочешь, однако полезно использовать информативную запись, так будет проще вспомнить внесённые изменения в будущем.
+
+command-line
+$ git commit -m "Changed the HTML for the site."
+Примечание: убедись, что используешь двойные кавычки вокруг комментария.
+
+После того, как мы сделали это, мы загрузим (заpush'им) изменения на GitHub:
+
+command-line
+$ git push
+Загружаем новый код на PythonAnywhere и перезапускаем веб-приложение
+Открой вкладку "терминалы" на PythonAnywhere и переключись на уже запущенную консоль Bash (или новую). Затем набери следующую команду:
+PythonAnywhere command-line
+$ cd ~/<your-pythonanywhere-domain>.pythonanywhere.com
+$ git pull
+[...]
+Можешь обратить внимание, как твой код будет загружаться на сервер. Если хочешь проверить успешность процедуры — открой вкладку Файлы и просмотри свой код на PythonAnywhere.
+
+Наконец, переключись на вкладку Web и нажми кнопку Reload.
+Обновления должны отобразиться на веб-сайте! Переключись на него и обнови страницу. Ты должна сразу заметить улучшения 
 
 
-
-
-# 
-# 
-# 
-# 
-# 
+		# 
+		# 
+		# 
+		# 
+		# 
 
 
 
