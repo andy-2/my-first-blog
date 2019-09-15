@@ -1,0 +1,107 @@
+	# python -m venv py_djangogirls
+	# cd py_djangogirls\Scripts
+	# activate
+	# python -m pip install --upgrade pip
+	# pip install django
+	# django-admin.exe startproject mysite .
+
+*** изменения в mysite/settings.py
+	TIME_ZONE = 'Europe/Moscow'
+	LANGUAGE_CODE = 'ru-ru'
+	STATIC_URL = '/static/'
+	STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+*** Чтобы создать базу данных для нашего блога: 
+	# python manage.py migrate
+	# python manage.py runserver
+
+Создание приложения
+	# cd d:\andy_projects\py_djangogirls\
+	# python manage.py startapp blog
+
+mysite/settings.py
+	INSTALLED_APPS = [
+	    'blog',
+	]
+
+*** Создание модели записи в блоге
+	blog/models.py, удали весь текст и вставь на его место следующий код:
+
+		from django.conf import settings
+		from django.db import models
+		from django.utils import timezone
+
+		class Post(models.Model):
+		    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+		    title = models.CharField(max_length=200)
+		    text = models.TextField()
+		    created_date = models.DateTimeField(default=timezone.now)
+		    published_date = models.DateTimeField(blank=True, null=True)
+
+		    def publish(self):
+		        self.published_date = timezone.now()
+		        self.save()
+
+		    def __str__(self):
+		        return self.title
+
+*** Создаём таблицы моделей в базе данных
+	# python manage.py makemigrations blog
+	# python manage.py migrate blog
+
+*** Администрирование Django
+	откроем файл blog/admin.py и заменим его содержимое на:
+		blog/admin.py
+		from django.contrib import admin
+		from .models import Post
+
+		admin.site.register(Post)
+
+
+	сначала нужно создать суперпользователя
+	# python manage.py createsuperuser
+
+*** В итоге твой код будет в трёх местах:
+		1) На локальном компьютере ты будешь заниматься разработкой и тестированием. 
+		2) Когда результат тебя устроит, ты загрузишь свою программу на GitHub. 
+		3) А твой сайт будет на PythonAnywhere, и ты сможешь обновлять его, просто загружая новую версию кода с GitHub.
+
+*** Установка Git
+	на пятом шаге, который называется "Adjusting your PATH environment" (Настройка системной переменной Path), выбери "Use Git and optional Unix tools from the Windows Command Prompt" (Запуск Git и соответствующих Unix утилит через командную строку Windows, нижняя опция).
+	Также неплохо будет выбрать опцию "Checkout Windows-style, commit Unix-style line endings".
+
+*** Создаём Git-репозиторий
+	Открой консоль и запусти эти команды в папке djangogirls:
+		$ git init
+		Initialized empty Git repository in ~/djangogirls/.git/
+		$ git config --global user.name "Your Name" (andy-2)
+		$ git config --global user.email you@example.com (temp2box@gmail.com)
+
+	Git будет отслеживать изменения всех файлов и каталогов в заданной директории, однако некоторые из них мы предпочли бы игнорировать. Для этого нам нужно создать файл .gitignore в корневом каталоге репозитория.
+		*.pyc
+		*~
+		__pycache__
+		myvenv
+		db.sqlite3
+		/static
+		.DS_Store
+	И сохрани его как .gitignore в корневом каталоге "djangogirls".
+
+
+
+
+
+
+# 
+# 
+# 
+# 
+# 
+
+
+
+
+
+
+
+
