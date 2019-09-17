@@ -79,7 +79,7 @@ mysite/settings.py
 
 *** Создаём Git-репозиторий
 	Открой консоль и запусти эти команды в папке djangogirls:
-		$ {# git init #}
+		$ git init
 		Initialized empty Git repository in ~/djangogirls/.git/
 		$ git config --global user.name "andy-2"
 		$ git config --global user.email temp2box@gmail.com
