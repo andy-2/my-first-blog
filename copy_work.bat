@@ -1,0 +1,1 @@
+XCOPY d:\andy_projects\py_djangogirls\blog\ "d:\Cloud Mail.Ru\!_EDU\!_Python\py_djangogirls\blog\" /E/C/H/R/Y/I

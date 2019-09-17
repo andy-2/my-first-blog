@@ -5,6 +5,7 @@
 	# python manage.py runserver
 =======================================================
 
+*** Виртуальное окружение
 	# python -m venv py_djangogirls
 	# cd py_djangogirls\Scripts
 	# activate
@@ -64,7 +65,6 @@ mysite/settings.py
 
 		admin.site.register(Post)
 
-
 	сначала нужно создать суперпользователя
 	# python manage.py createsuperuser
 
@@ -79,10 +79,10 @@ mysite/settings.py
 
 *** Создаём Git-репозиторий
 	Открой консоль и запусти эти команды в папке djangogirls:
-		$ git init
+		$ {# git init #}
 		Initialized empty Git repository in ~/djangogirls/.git/
-		$ git config --global user.name "Your Name" (andy-2)
-		$ git config --global user.email you@example.com (temp2box@gmail.com)
+		$ git config --global user.name "andy-2"
+		$ git config --global user.email temp2box@gmail.com
 
 	Git будет отслеживать изменения всех файлов и каталогов в заданной директории, однако некоторые из них мы предпочли бы игнорировать. Для этого нам нужно создать файл .gitignore в корневом каталоге репозитория.
 		*.pyc
@@ -115,11 +115,27 @@ mysite/settings.py
 		$ git add --all .
 		$ git commit -m "My Django Girls app, first commit"
 
+===================================================================
+https://githowto.com/ru/setup
+Параметры установки окончаний строк
+Также, для пользователей Unix/Mac:
+	git config --global core.autocrlf input
+	git config --global core.safecrlf true
+Для пользователей Windows:
+	git config --global core.autocrlf true
+	git config --global core.safecrlf true
+Установка отображения unicode
+По умолчанию, git будет печатать не-ASCII символов в именах файлов в виде восьмеричных последовательностей \nnn. Что бы избежать нечитаемых строк, установите соответствующий флаг.
+	git config --global core.quotepath off
+
+
+===================================================================
+
 *** Загружаем код в репозиторий GitHub
 	Зайди на GitHub.com и создай новую бесплатную учётную запись.
 	Затем создай новый репозиторий и назови его "my-first-blog". Не выбирай опцию "initialise with a README", не создавай файл .gitignore (мы сделаем это локально сами) и оставь лицензию None.
 -------------------------------------------
-github.com
+=*=*= github.com =*=*=
 
 @andy-2
 temp2box@gmail.com
@@ -251,38 +267,180 @@ Superuser created successfully.
 	Убедись, что находишься в директории djangogirls
 		$ git status
 		$ git add --all .
-	Примечание: -all («всё») означает, что git также обратит внимание на удалённые файлы (по умолчанию он отслеживает новые/изменённые файлы).
+	Примечание: -all («всё») означает, что git также обратит внимание на удалённые файлы (по умолчанию он отслеживает новые/изменённые файлы). Также помни (из третьей главы), что . означает текущую директорию.
+	
 	Прежде чем мы загрузим файлы, давай проверим, что именно git будет загружать (все файлы, который git готов отправить на сервер, отмечаются шрифтом зелёного цвета):
+		$ git status
+	Мы почти у цели, пришло время сохранить изменения в истории. К сохраняемой версии мы добавим небольшое сообщение, в котором кратко опишем изменения. Можешь набрать в качестве сообщения всё, что захочешь, однако полезно использовать информативную запись, так будет проще вспомнить внесённые изменения в будущем.
+		$ git commit -m "Changed the HTML for the site."
+	Примечание: убедись, что используешь двойные кавычки вокруг комментария.
+	После того, как мы сделали это, мы загрузим (заpush'им) изменения на GitHub:
+		$ git push
+*** Загружаем новый код на PythonAnywhere и перезапускаем веб-приложение
+	Открой вкладку "терминалы" на PythonAnywhere и переключись на уже запущенную консоль Bash (или новую). Затем набери следующую команду:
+		$ cd ~/andy2.pythonanywhere.com
+		$ git pull
+	Можешь обратить внимание, как твой код будет загружаться на сервер. Если хочешь проверить успешность процедуры — открой вкладку Файлы и просмотри свой код на PythonAnywhere.
+	
+	Наконец, переключись на вкладку Web и нажми кнопку Reload.
+	Обновления должны отобразиться на веб-сайте! Переключись на него и обнови страницу.
 
+*** Django ORM и QuerySet
+	QuerySet, по сути, — список объектов заданной модели. QuerySet позволяет читать данные из базы данных, фильтровать и изменять их порядок.
+	вывести на экран все записи в нашем блоге:
+		python manage.py shell
+		(InteractiveConsole)
+		>>> from blog.models import Post
+		>>> Post.objects.all()
+		<QuerySet [<Post: my post title>, <Post: another post title>]>
+
+*** Создаём объект
+	Создать объект Post в базе данных можно следующим образом:
+		>>> from django.contrib.auth.models import User
+		>>> User.objects.all()
+		<QuerySet [<User: ola>]>
+		>>> me = User.objects.get(username='ola')
+		>>> Post.objects.create(author=me, title='Sample title', text='Test')
+
+
+
+Добавляем записи
+Можешь повеселиться и добавить ещё записей. 2-3 будет достаточно.
+
+*** Фильтрация объектов
+		>>> Post.objects.filter(author=me)
+		>>> Post.objects.filter(title__contains='title')
+	Примечание: обрати внимание на два символа нижнего подчёркивания (_) между title и contains. Django ORM использует этот синтаксис для разделения имён полей ("title") и операций или фильтров ("contains").
+
+	список всех опубликованных записей. Мы просто отфильтруем записи по полю published_date:
+		>>> from django.utils import timezone
+		>>> Post.objects.filter(published_date__lte=timezone.now())
+	
+	выберем запись, которую мы хотим опубликовать:
+		>>> post = Post.objects.get(title="Sample title")
+		>>> post.publish()
+
+*** Сортировка объектов
+	QuerySets позволяет сортировать объекты. Давай попробуем сортировку по полю created_date:
+		>>> Post.objects.order_by('created_date')
+		>>> Post.objects.order_by('-created_date')
+
+*** Соединение QuerySets
+		QuerySets можно сцеплять, создавая цепочки:
+		>>> Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+		
+		>>> exit()
+
+*** Динамически изменяющиеся данные в шаблонах
+	Отдельные части уже размещены в нужных местах: 
+	- модель Post определена в файле models.py, 
+	- post_list — в файле views.py, 
+	- добавлен шаблон. 
+	Но как нам отобразить записи в шаблоне HTML-страницы? 
+
+	Для этого и предназначены представления: соединять между собой модели и шаблоны. В post_list представлению нужно будет взять модели, которые мы хотим отобразить, и передать их шаблону. Таким образом, в представлениях мы определяем, что (какая модель) будет отображена в шаблоне.
+
+	Сейчас нас интересует список записей блога, отсортированных по published_date.
+		Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+	Теперь нам нужно включить эту строку кода в файлblog/views.py, добавив её в функцию def post_list(request):
+		def post_list(request):
+		    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+		    return render(request, 'blog/post_list.html', {})
+
+	В функции render у нас уже есть параметр request (т.е. всё, что мы получим от пользователя в качестве запроса через Интернет) и файл шаблона 'blog/post_list.html'. Последний параметр, который выглядит как {}, — это место, куда мы можем добавить что-нибудь для использования в шаблоне. Мы должны задавать имена передаваемым шаблону вещам (прямо сейчас мы остановимся на 'posts' :)). В итоге параметр будет выглядеть следующим образом: {'posts': posts}. Обрати внимание, что часть перед : является строкой; её нужно обернуть в кавычки ''.
+
+	В результате файл blog/views.py должен выглядеть следующим образом:	
+
+		blog/views.py
+		from django.shortcuts import render
+		from django.utils import timezone
+		from .models import Post
+
+		def post_list(request):
+		    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+		    return render(request, 'blog/post_list.html', {'posts': posts})
+	
+	Подробнее о QuerySets в Django можно узнать в официальной документации: https://docs.djangoproject.com/en/1.11/ref/models/querysets/
+
+*** Шаблоны Django
+	Чтобы вставить переменную в шаблон Django, нам нужно использовать двойные фигурные скобки с именем переменной внутри:
+		blog/templates/blog/post_list.html
+		{{ posts }}
+Попробуй это в шаблоне blog/templates/blog/post_list.html. Замени всё, начиная со второго <div> и вплоть до третьего </div> кодом {{ posts }}. Сохрани файл и обнови страницу, чтобы увидеть результат:
+
+Рисунок 13.1
+
+Как ты можешь заметить, мы получили следующую строку:
+
+blog/templates/blog/post_list.html
+<QuerySet [<Post: My second post>, <Post: My first post>]>
+Это показывает, что Django понял переменную как список объектов. Помнишь из главы Введение в Python, как мы можем аккуратно отобразить список? Правильно, циклом for! В шаблонах Django ты можешь использовать их таким образом:
+
+blog/templates/blog/post_list.html
+{% for post in posts %}
+    {{ post }}
+{% endfor %}
+Попробуй вставить это в свой шаблон.
+
+Рисунок 13.2
+
+Сработало! Но мы хотим, чтобы они отображались как статические записи, которые мы создавали в главе Введение в HTML. Ты можешь смешивать HTML и теги шаблонов. Наш элемент body будет выглядеть следующим образом:
+
+blog/templates/blog/post_list.html
+<div>
+    <h1><a href="/">Django Girls Blog</a></h1>
+</div>
+
+{% for post in posts %}
+    <div>
+        <p>published: {{ post.published_date }}</p>
+        <h1><a href="">{{ post.title }}</a></h1>
+        <p>{{ post.text|linebreaksbr }}</p>
+    </div>
+{% endfor %}
+Всё, что ты поместишь между {% for %} и {% endfor %}, будет повторено для каждого объекта в списке. Обнови страницу:
+
+Рисунок 13.3
+
+Ты заметила, что мы использовали немного другую запись в этот раз: {{ post.title }} или {{ post.text }}? Мы обращаемся к различным полям нашей модели Post. Также |linebreaksbr прогоняет текст через фильтр для преобразования переносов строк в параграфы.
+
+Ещё один момент
+Пришло время ещё раз убедиться, что наш сайт будет работать в сети, согласна? Попробуем развернуть новую версию сайта на PythonAnywhere. Краткий обзор необходимых шагов...
+
+Сначала загружаем код на GitHub
 command-line
 $ git status
-Мы почти у цели, пришло время сохранить изменения в истории. К сохраняемой версии мы добавим небольшое сообщение, в котором кратко опишем изменения. Можешь набрать в качестве сообщения всё, что захочешь, однако полезно использовать информативную запись, так будет проще вспомнить внесённые изменения в будущем.
-
-command-line
-$ git commit -m "Changed the HTML for the site."
-Примечание: убедись, что используешь двойные кавычки вокруг комментария.
-
-После того, как мы сделали это, мы загрузим (заpush'им) изменения на GitHub:
-
-command-line
+[...]
+$ git add --all .
+$ git status
+[...]
+$ git commit -m "Modified templates to display posts from database."
+[...]
 $ git push
-Загружаем новый код на PythonAnywhere и перезапускаем веб-приложение
-Открой вкладку "терминалы" на PythonAnywhere и переключись на уже запущенную консоль Bash (или новую). Затем набери следующую команду:
+Затем заходим на PythonAnywhere, открываем Bash console и набираем команду:
 PythonAnywhere command-line
-$ cd ~/<your-pythonanywhere-domain>.pythonanywhere.com
+$ cd $USER.pythonanywhere.com
 $ git pull
 [...]
-Можешь обратить внимание, как твой код будет загружаться на сервер. Если хочешь проверить успешность процедуры — открой вкладку Файлы и просмотри свой код на PythonAnywhere.
-
-Наконец, переключись на вкладку Web и нажми кнопку Reload.
-Обновления должны отобразиться на веб-сайте! Переключись на него и обнови страницу. Ты должна сразу заметить улучшения 
+Наконец, переключаемся на вкладку Web и жмём кнопку Reload. Обновления запущены в жизнь! Даже если записи в твоём блоге на PythonAnywhere отличаются от записей в блоге на локальном сервере, то всё в порядке. Базы данных на твоём локальном компьютере и на PythonAnywhere не синхронизируются, в отличиет от остальных файлов проекта.
+Поздравляем! Теперь попробуй добавить новые записи через панель администратора Django (не забывай указывать published_date!). Удостоверься, что ты в панели администратора своего сайта на PythonAnywhere (https://yourname.pythonanywhere.com/admin). Затем обнови страницу, чтобы проверить, появились ли новые записи.
 
 
+
+
+
+
+
+
+
+
+
 		# 
 		# 
 		# 
 		# 
 		# 
+
 
 
 
