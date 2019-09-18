@@ -44,3 +44,10 @@ h1, h2, h3, h4 {
 .post h1 a, .post h1 a:visited {
     color: #000000;
 }
+table {
+    border: 0px solid grey;
+} 
+/* границы ячеек первого ряда таблицы */
+th {border: 0px solid grey;}
+/* границы ячеек тела таблицы */
+td {border: 0px solid grey;}
